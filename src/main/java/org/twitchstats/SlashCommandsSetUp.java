@@ -14,9 +14,8 @@ public class SlashCommandsSetUp
 		Set<SlashCommandBuilder> builders = new HashSet<>();
 
 		builders.add(new SlashCommandBuilder().setName("twitchstats")
-			.setDescription("What is going on")
+			.setDescription("Gets BMJ twitch stats")
 			.setOptions(Arrays.asList(
-				SlashCommandOption.createStringOption("channel", "twitch channel", true),
 				SlashCommandOption.createStringOption("start", "start", true),
 				SlashCommandOption.createStringOption("end", "end", true)
 			))

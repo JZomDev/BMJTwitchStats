@@ -37,15 +37,11 @@ public class TwitchStatsEmbed
 
 				List<StreamStat> json = gson.fromJson(serverText, typeToken);
 
-				String channelid = "";
+				String channelid = "thebossmanjack";
 				String start = "";
 				String end = "";
 				for (SlashCommandInteractionOption interactionOption : arg)
 				{
-					if (interactionOption.getName().equals("channel"))
-					{
-						channelid = interactionOption.getStringValue().get();
-					}
 					if (interactionOption.getName().equals("start"))
 					{
 						start = interactionOption.getStringValue().get();
@@ -126,7 +122,10 @@ public class TwitchStatsEmbed
 				int totalBans = 0;
 				int periodBans = 0;
 				int totalStreams = 0;
+				int periodStreams = 0;
 				int longestStream = 0;
+				int sumPeriodMinutes = 0;
+				int sumTotalMinutes = 0;
 				int shortestStream = 99999999;
 				ArrayList<String> uniqueChattersPeriod = new ArrayList<>();
 				ArrayList<String> uniqueChattersTotal = new ArrayList<>();
@@ -140,7 +139,7 @@ public class TwitchStatsEmbed
 					neverRan = false;
 					uniqueChattersTotal.addAll(new ArrayList<>(Arrays.asList(streamStat.uniqueChatters)));
 					totalBans+= Integer.parseInt(streamStat.totalBans);
-
+					totalStreams++;
 					if (peakViewers < Integer.parseInt(streamStat.highestViewerCount))
 					{
 						peakViewers = Integer.parseInt(streamStat.highestViewerCount);
@@ -154,12 +153,14 @@ public class TwitchStatsEmbed
 						continue;
 					Instant streamStart = Instant.parse(s1);
 					Instant streamEnd = Instant.parse(s2);
+					int minutes = (int) ChronoUnit.MINUTES.between(streamStart, streamEnd);
+					sumTotalMinutes += minutes;
 					if (!start1.isBefore(streamStart))
 						continue;
 					if (!end1.isAfter(streamEnd))
 						continue;
 
-					int minutes = (int) ChronoUnit.MINUTES.between(streamStart, streamEnd);
+					sumPeriodMinutes += minutes;
 					if (minutes > longestStream)
 					{
 						longestStream = minutes;
@@ -169,7 +170,7 @@ public class TwitchStatsEmbed
 						shortestStream = minutes;
 					}
 
-					totalStreams++;
+					periodStreams++;
 					uniqueChattersPeriod.addAll(new ArrayList<>(Arrays.asList(streamStat.uniqueChatters)));
 
 					periodBans += Integer.parseInt(streamStat.totalBans);
@@ -185,11 +186,15 @@ public class TwitchStatsEmbed
 					Date date2 = new Date(end1.toEpochMilli());
 					embedBuilder.addField("Period", "from " + date1 + " to " + date2);
 					embedBuilder.addInlineField("Total Streams", String.valueOf(totalStreams));
+					embedBuilder.addInlineField("Average Stream Length", String.valueOf((int) sumTotalMinutes / totalStreams) + " minutes");
+					embedBuilder.addInlineField("Total Bans", String.valueOf(totalBans));
+					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewers));
+
+					embedBuilder.addInlineField("Period Streams", String.valueOf(periodStreams));
 					embedBuilder.addInlineField("Longest Streams", String.valueOf(longestStream) + " minutes");
 					embedBuilder.addInlineField("Shortest Streams", String.valueOf(shortestStream) + " minutes");
-					embedBuilder.addInlineField("Total Bans", String.valueOf(totalBans));
+					embedBuilder.addInlineField("Average Stream Length Period", String.valueOf((int) sumPeriodMinutes / periodStreams) + " minutes");
 					embedBuilder.addInlineField("Bans in period", String.valueOf(periodBans));
-					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewers));
 					embedBuilder.addInlineField("Total Unique Chatters", String.valueOf(uniqueChattersTotal.size()));
 					embedBuilder.addInlineField("Period Unique Chatters", String.valueOf(uniqueChattersPeriod.size()));
 				}

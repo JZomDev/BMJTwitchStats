@@ -1,3 +1,3 @@
-# Discord Server Eraser
+# BMJ Twitch Stats
 
-Made to clean up text channels after a threshold of time has passed.
+Made to see how many times BMJ streams in a day
