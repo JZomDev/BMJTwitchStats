@@ -7,7 +7,7 @@ import org.twitchstats.Main;
 import static org.twitchstats.Main.CURRENT_STREAM;
 import static org.twitchstats.Main.STREAM_STATS;
 import org.twitchstats.StreamStat;
-import org.twitchstats.workers.TwitchStatsWorker;
+import org.twitchstats.workers.TwitchStatsUpdater;
 
 public class ChannelGoOffline
 {
@@ -35,9 +35,8 @@ public class ChannelGoOffline
 			if (streamStat != null)
 			{
 				streamStat.streamEndTime = Instant.now().toString();
-				TwitchStatsWorker worker = new TwitchStatsWorker();
+				TwitchStatsUpdater worker = new TwitchStatsUpdater();
 				worker.execute(Main.discordApi).join();
-//				CURRENT_STREAM.put(event.getChannel().getName(), "");
 			}
 		}
 	}

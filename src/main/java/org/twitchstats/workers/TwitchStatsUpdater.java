@@ -17,7 +17,7 @@ import static org.twitchstats.Main.CURRENT_STREAM;
 import static org.twitchstats.Main.DIR;
 import org.twitchstats.StreamStat;
 
-public class TwitchStatsWorker
+public class TwitchStatsUpdater
 {
 	private Bot bot;
 

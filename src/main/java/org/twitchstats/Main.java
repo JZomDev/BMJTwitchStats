@@ -12,7 +12,7 @@ import org.twitchstats.listeners.serveravailable.ServerBecomesAvailable;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.twitchstats.listeners.slash.CheckItemHistory;
-import org.twitchstats.workers.TwitchStatsWorker;
+import org.twitchstats.workers.TwitchStatsUpdater;
 
 public class Main
 {
@@ -81,13 +81,13 @@ public class Main
 			bot.start();
 			logger.info("started");
 
-			TwitchStatsWorker worker = new TwitchStatsWorker();
+			TwitchStatsUpdater worker = new TwitchStatsUpdater();
 
 			launchScheduledExecutor(worker);
 		}
 	}
 
-	public static void launchScheduledExecutor(TwitchStatsWorker worker)
+	public static void launchScheduledExecutor(TwitchStatsUpdater worker)
 	{
 		if (mService == null || mService.isShutdown())
 		{

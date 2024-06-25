@@ -20,7 +20,7 @@ import org.javacord.api.interaction.SlashCommandInteractionOption;
 import static org.twitchstats.Main.DIR;
 import org.twitchstats.StreamStat;
 
-public class TwitchStatsEmbed
+public class TwitchStatsEmbedWorker
 {
 	private static final Type typeToken = new TypeToken<List<StreamStat>>()
 	{
@@ -185,18 +185,42 @@ public class TwitchStatsEmbed
 					Date date1 = new Date(start1.toEpochMilli());
 					Date date2 = new Date(end1.toEpochMilli());
 					embedBuilder.addField("Period", "from " + date1 + " to " + date2);
+					embedBuilder.addInlineField("Period Streams", String.valueOf(periodStreams));
+
+					if (periodStreams != 0)
+					{
+						embedBuilder.addInlineField("Longest Streams", String.valueOf(longestStream) + " minutes");
+						embedBuilder.addInlineField("Shortest Streams", String.valueOf(shortestStream) + " minutes");
+					}
+					else
+					{
+						embedBuilder.addInlineField("Longest Streams", "No streams in period");
+						embedBuilder.addInlineField("Shortest Streams", "No streams in period");
+					}
+					embedBuilder.addInlineField("Bans in period", String.valueOf(periodBans));
+					embedBuilder.addInlineField("Period Unique Chatters", String.valueOf(uniqueChattersPeriod.size()));
+
+					if (periodStreams != 0)
+					{
+						embedBuilder.addInlineField("Average Stream Length Period", String.valueOf((int) sumPeriodMinutes / periodStreams) + " minutes");
+					}
+					else
+					{
+						embedBuilder.addInlineField("Average Stream Length Period", "No streams in period");
+					}
 					embedBuilder.addInlineField("Total Streams", String.valueOf(totalStreams));
-					embedBuilder.addInlineField("Average Stream Length", String.valueOf((int) sumTotalMinutes / totalStreams) + " minutes");
+					if (totalStreams != 0)
+					{
+						embedBuilder.addInlineField("Average Stream Length", String.valueOf((int) sumTotalMinutes / totalStreams) + " minutes");
+					}
+					else
+					{
+						embedBuilder.addInlineField("Average Stream Length", "No streams ever");
+
+					}
 					embedBuilder.addInlineField("Total Bans", String.valueOf(totalBans));
 					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewers));
-
-					embedBuilder.addInlineField("Period Streams", String.valueOf(periodStreams));
-					embedBuilder.addInlineField("Longest Streams", String.valueOf(longestStream) + " minutes");
-					embedBuilder.addInlineField("Shortest Streams", String.valueOf(shortestStream) + " minutes");
-					embedBuilder.addInlineField("Average Stream Length Period", String.valueOf((int) sumPeriodMinutes / periodStreams) + " minutes");
-					embedBuilder.addInlineField("Bans in period", String.valueOf(periodBans));
 					embedBuilder.addInlineField("Total Unique Chatters", String.valueOf(uniqueChattersTotal.size()));
-					embedBuilder.addInlineField("Period Unique Chatters", String.valueOf(uniqueChattersPeriod.size()));
 				}
 
 				return embedBuilder;

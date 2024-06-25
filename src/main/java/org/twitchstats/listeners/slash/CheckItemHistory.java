@@ -8,7 +8,7 @@ import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.event.interaction.SlashCommandCreateEvent;
 import org.javacord.api.interaction.SlashCommandInteraction;
 import org.javacord.api.listener.interaction.SlashCommandCreateListener;
-import org.twitchstats.workers.TwitchStatsEmbed;
+import org.twitchstats.workers.TwitchStatsEmbedWorker;
 
 public class CheckItemHistory implements SlashCommandCreateListener
 {
@@ -25,7 +25,7 @@ public class CheckItemHistory implements SlashCommandCreateListener
 		SlashCommandInteraction slashCommandInteraction = event.getSlashCommandInteraction();
 
 		DiscordApi api = event.getApi();
-		TwitchStatsEmbed twitchStatsEmbed = new TwitchStatsEmbed();
+		TwitchStatsEmbedWorker twitchStatsEmbed = new TwitchStatsEmbedWorker();
 
 		if (slashCommandInteraction.getCommandName().equals("twitchstats"))
 		{
@@ -36,8 +36,8 @@ public class CheckItemHistory implements SlashCommandCreateListener
 						.update();
 					try
 					{
-						CompletableFuture<EmbedBuilder> juicedWorkerFuture = twitchStatsEmbed.execute(api, slashCommandInteraction.getArguments());
-						EmbedBuilder embedBuilder = juicedWorkerFuture.orTimeout(10, TimeUnit.SECONDS).get();
+						CompletableFuture<EmbedBuilder> futureTwitchStats = twitchStatsEmbed.execute(api, slashCommandInteraction.getArguments());
+						EmbedBuilder embedBuilder = futureTwitchStats.orTimeout(10, TimeUnit.SECONDS).get();
 
 						if (embedBuilder != null)
 						{
@@ -53,12 +53,15 @@ public class CheckItemHistory implements SlashCommandCreateListener
 					}
 					catch (Exception e)
 					{
+						System.out.println(e.getMessage());
+						e.printStackTrace();
+
 						interactionOriginalResponseUpdater
 							.delete()
 							.join();
 
 						slashCommandInteraction.createFollowupMessageBuilder()
-							.setContent("Failed to get juice, try again in a moment")
+							.setContent("Failed to get data")
 							.setFlags(MessageFlag.EPHEMERAL)
 							.send()
 							.join();
