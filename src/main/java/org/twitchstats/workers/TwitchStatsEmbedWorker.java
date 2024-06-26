@@ -118,7 +118,8 @@ public class TwitchStatsEmbedWorker
 					end1 = temp;
 				}
 
-				int peakViewers = 0;
+				int peakViewersTotal = 0;
+				int peakViewersPeriod = 0;
 				int totalBans = 0;
 				int periodBans = 0;
 				int totalStreams = 0;
@@ -140,9 +141,12 @@ public class TwitchStatsEmbedWorker
 					uniqueChattersTotal.addAll(new ArrayList<>(Arrays.asList(streamStat.uniqueChatters)));
 					totalBans+= Integer.parseInt(streamStat.totalBans);
 					totalStreams++;
-					if (peakViewers < Integer.parseInt(streamStat.highestViewerCount))
+					if (streamStat.highestViewerCount != null && !streamStat.highestViewerCount.isEmpty())
 					{
-						peakViewers = Integer.parseInt(streamStat.highestViewerCount);
+						if (peakViewersTotal < Integer.parseInt(streamStat.highestViewerCount))
+						{
+							peakViewersTotal = Integer.parseInt(streamStat.highestViewerCount);
+						}
 					}
 
 					// these are session stats
@@ -159,6 +163,14 @@ public class TwitchStatsEmbedWorker
 						continue;
 					if (!end1.isAfter(streamEnd))
 						continue;
+
+					if (streamStat.highestViewerCount != null && !streamStat.highestViewerCount.isEmpty())
+					{
+						if (peakViewersPeriod < Integer.parseInt(streamStat.highestViewerCount))
+						{
+							peakViewersPeriod = Integer.parseInt(streamStat.highestViewerCount);
+						}
+					}
 
 					sumPeriodMinutes += minutes;
 					if (minutes > longestStream)
@@ -199,6 +211,7 @@ public class TwitchStatsEmbedWorker
 					}
 					embedBuilder.addInlineField("Bans in period", String.valueOf(periodBans));
 					embedBuilder.addInlineField("Period Unique Chatters", String.valueOf(uniqueChattersPeriod.size()));
+					embedBuilder.addInlineField("Period Peak Viewers", String.valueOf(peakViewersPeriod));
 
 					if (periodStreams != 0)
 					{
@@ -219,7 +232,7 @@ public class TwitchStatsEmbedWorker
 
 					}
 					embedBuilder.addInlineField("Total Bans", String.valueOf(totalBans));
-					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewers));
+					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewersTotal));
 					embedBuilder.addInlineField("Total Unique Chatters", String.valueOf(uniqueChattersTotal.size()));
 				}
 
