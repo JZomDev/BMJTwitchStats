@@ -38,17 +38,22 @@ public class TwitchStatsEmbedWorker
 				List<StreamStat> json = gson.fromJson(serverText, typeToken);
 
 				String channelid = "thebossmanjack";
-				String start = "";
-				String end = "";
+				double start = 0;
+				double end = 0;
+				String units = "";
 				for (SlashCommandInteractionOption interactionOption : arg)
 				{
 					if (interactionOption.getName().equals("start"))
 					{
-						start = interactionOption.getStringValue().get();
+						start = interactionOption.getDecimalValue().get();
 					}
 					if (interactionOption.getName().equals("end"))
 					{
-						end = interactionOption.getStringValue().get();
+						end = interactionOption.getDecimalValue().get();
+					}
+					if (interactionOption.getName().equals("units"))
+					{
+						units = interactionOption.getStringValue().get();
 					}
 				}
 
@@ -56,67 +61,23 @@ public class TwitchStatsEmbedWorker
 				embedBuilder.setTitle("Twitch Stats - " + channelid);
 				embedBuilder.setAuthor(api.getYourself());
 
-				HashMap<String, String> validEndings = new HashMap<>();
-				validEndings.put("hrs", "h");
-				validEndings.put("hr", "h");
-				validEndings.put("h", "h");
-				validEndings.put("d", "d");
-				validEndings.put("day", "d");
-				validEndings.put("days", "d");
-				validEndings.put("week", "w");
-				validEndings.put("w", "w");
-				validEndings.put("weeks", "w");
-				validEndings.put("wks", "w");
-				String numberStart = "";
-				String numberEnd = "";
-				String unitStart = "";
-				String unitEnd = "";
-				for (String validEnding : validEndings.keySet())
-				{
-					if (start.toLowerCase().endsWith(validEnding))
-					{
-						numberStart = start.substring(0, start.length() - validEnding.length());
-						unitStart = validEndings.get(validEnding);
-					}
-				}
-
-				for (String validEnding : validEndings.keySet())
-				{
-					if (end.toLowerCase().endsWith(validEnding))
-					{
-						numberEnd = end.substring(0, end.length() - validEnding.length());
-						unitEnd = validEndings.get(validEnding);
-					}
-				}
 
 				Instant now = Instant.now();
 
-				ChronoUnit startUnits = unitStart.equals("h") ? ChronoUnit.HOURS :
-					unitStart.equals("d") ? ChronoUnit.DAYS :
-						unitStart.equals("w") ? ChronoUnit.WEEKS : null;
+				long DAY = 24;
+				long multiplier = 60 * 60 * (units.equals("h") ? 1 : units.equals("d") ? DAY : 0);
+				long startSeconds = (long) start * multiplier;
+				long endSeconds = (long) end * multiplier;
 
-				if (startUnits == null)
+				if (endSeconds > startSeconds)
 				{
-					embedBuilder.addField("Bad units used", "womp womp");
+					long temp = startSeconds;
+					startSeconds = endSeconds;
+					endSeconds = temp;
 				}
 
-				ChronoUnit endUnits = unitEnd.equals("h") ? ChronoUnit.HOURS :
-					unitEnd.equals("d") ? ChronoUnit.DAYS :
-						unitEnd.equals("w") ? ChronoUnit.WEEKS : null;
-
-				if (endUnits == null)
-				{
-					embedBuilder.addField("Bad units used", "womp womp");
-				}
-				Instant start1 = now.minus(Integer.parseInt(numberStart), startUnits);
-				Instant end1 = now.minus(Integer.parseInt(numberEnd), endUnits);
-
-				if (start1.isAfter(end1))
-				{
-					Instant temp = start1;
-					start1 = end1;
-					end1 = temp;
-				}
+				Instant start1 = now.minus(startSeconds, ChronoUnit.SECONDS);
+				Instant end1 = now.minus(endSeconds, ChronoUnit.SECONDS);
 
 				int peakViewersTotal = 0;
 				int peakViewersPeriod = 0;
@@ -150,13 +111,27 @@ public class TwitchStatsEmbedWorker
 					}
 
 					// these are session stats
-
 					String s1 = streamStat.streamStartTime;
 					String s2 = streamStat.streamEndTime;
+					Instant streamEnd;
+
 					if (s2 == null || s2.isEmpty())
-						continue;
+					{
+						if (endSeconds == 0)
+						{
+							streamEnd = Instant.now();
+						}
+						else
+						{
+							continue;
+						}
+					}
+					else
+					{
+						streamEnd = Instant.parse(s2);
+					}
+
 					Instant streamStart = Instant.parse(s1);
-					Instant streamEnd = Instant.parse(s2);
 					int minutes = (int) ChronoUnit.MINUTES.between(streamStart, streamEnd);
 					sumTotalMinutes += minutes;
 					if (!start1.isBefore(streamStart))
@@ -201,13 +176,13 @@ public class TwitchStatsEmbedWorker
 
 					if (periodStreams != 0)
 					{
-						embedBuilder.addInlineField("Longest Streams", String.valueOf(longestStream) + " minutes");
-						embedBuilder.addInlineField("Shortest Streams", String.valueOf(shortestStream) + " minutes");
+						embedBuilder.addInlineField("Longest Stream", longestStream + " minutes");
+						embedBuilder.addInlineField("Shortest Stream", shortestStream + " minutes");
 					}
 					else
 					{
-						embedBuilder.addInlineField("Longest Streams", "No streams in period");
-						embedBuilder.addInlineField("Shortest Streams", "No streams in period");
+						embedBuilder.addInlineField("Longest Stream", "No streams in period");
+						embedBuilder.addInlineField("Shortest Stream", "No streams in period");
 					}
 					embedBuilder.addInlineField("Bans in period", String.valueOf(periodBans));
 					embedBuilder.addInlineField("Period Unique Chatters", String.valueOf(uniqueChattersPeriod.size()));
