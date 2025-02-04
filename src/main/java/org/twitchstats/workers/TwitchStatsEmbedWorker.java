@@ -37,7 +37,7 @@ public class TwitchStatsEmbedWorker
 
 				List<StreamStat> json = gson.fromJson(serverText, typeToken);
 
-				String channelid = "thebossmanjack";
+				String channelid = "austingambles";
 				double start = 0;
 				double end = 0;
 				String units = "";
