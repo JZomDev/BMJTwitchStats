@@ -2,12 +2,16 @@ package org.twitchstats.features;
 
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.events.ChannelViewerCountUpdateEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import static org.twitchstats.Main.CURRENT_STREAM;
 import static org.twitchstats.Main.STREAM_STATS;
 import org.twitchstats.StreamStat;
 
 public class ChannelViewerCountUpdate
 {
+	private static final Logger logger = LogManager.getLogger(ChannelViewerCountUpdate.class);
+
 	public ChannelViewerCountUpdate(SimpleEventHandler eventHandler) {
 		eventHandler.onEvent(ChannelViewerCountUpdateEvent.class, event -> onChannelMessage(event));
 	}
@@ -16,7 +20,7 @@ public class ChannelViewerCountUpdate
 	 * Subscribe to the ChannelMessage Event and write the output to the console
 	 */
 	public void onChannelMessage(ChannelViewerCountUpdateEvent event) {
-		System.out.println(String.format(
+		logger.info(String.format(
 			"ViewerCount StreamID [%s] - Channel [%s] - Viewer Count[%s] - start time[%s]",
 			event.getStream().getId(),
 			event.getChannel().getName(),

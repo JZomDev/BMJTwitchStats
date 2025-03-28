@@ -3,6 +3,8 @@ package org.twitchstats.features;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
 import java.time.Instant;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.twitchstats.Main;
 import static org.twitchstats.Main.CURRENT_STREAM;
 import static org.twitchstats.Main.STREAM_STATS;
@@ -11,6 +13,8 @@ import org.twitchstats.workers.TwitchStatsUpdater;
 
 public class ChannelGoOffline
 {
+	private static final Logger logger = LogManager.getLogger(ChannelGoOffline.class);
+
 	public ChannelGoOffline(SimpleEventHandler eventHandler) {
 		eventHandler.onEvent(ChannelGoOfflineEvent.class, event -> onChannelMessage(event));
 	}
@@ -20,7 +24,7 @@ public class ChannelGoOffline
 	 */
 	public void onChannelMessage(ChannelGoOfflineEvent event) {
 		String endTime = Instant.now().toString();
-		System.out.println(String.format(
+		logger.info(String.format(
 			"Channel [%s] - Ended at [%s]",
 			event.getChannel().getName(), endTime)
 		);

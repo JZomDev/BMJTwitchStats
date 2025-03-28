@@ -17,6 +17,7 @@ import org.twitchstats.features.ChannelGoOffline;
 import org.twitchstats.features.ChannelMessage;
 import org.twitchstats.features.ChannelViewerCountUpdate;
 import org.twitchstats.features.UserBan;
+import org.twitchstats.features.UserTimeout;
 
 
 public class Bot {
@@ -73,6 +74,7 @@ public class Bot {
 
 		// Register Event-based features
 		UserBan banChannelChatToConsole = new UserBan(eventHandler);
+		UserTimeout userTimeoutToConsole = new UserTimeout(eventHandler);
 		ChannelGoOffline channelGoOffline = new ChannelGoOffline(eventHandler);
 		ChannelGoLive channelGoLive = new ChannelGoLive(eventHandler);
 		ChannelViewerCountUpdate channelViewerCountUpdate = new ChannelViewerCountUpdate(eventHandler);

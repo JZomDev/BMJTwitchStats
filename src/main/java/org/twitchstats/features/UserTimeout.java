@@ -3,12 +3,16 @@ package org.twitchstats.features;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.chat.events.channel.UserBanEvent;
 import com.github.twitch4j.chat.events.channel.UserTimeoutEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import static org.twitchstats.Main.CURRENT_STREAM;
 import static org.twitchstats.Main.STREAM_STATS;
 import org.twitchstats.StreamStat;
 
 public class UserTimeout
 {
+	private static final Logger logger = LogManager.getLogger(UserTimeout.class);
+
 	public UserTimeout(SimpleEventHandler eventHandler) {
 		eventHandler.onEvent(UserTimeoutEvent.class, event -> onChannelMessage(event));
 	}
@@ -17,7 +21,7 @@ public class UserTimeout
 	 * Subscribe to the ChannelMessage Event and write the output to the console
 	 */
 	public void onChannelMessage(UserTimeoutEvent event) {
-		System.out.println(String.format(
+		logger.info(String.format(
 			"Timeout Channel [%s] - Timeout User[%s]",
 			event.getChannel().getName(),
 			event.getUser().getName())
