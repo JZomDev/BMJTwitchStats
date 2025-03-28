@@ -87,10 +87,15 @@ public class TwitchStatsEmbedWorker
 				int periodTimeouts = 0;
 				int totalStreams = 0;
 				int periodStreams = 0;
-				int longestStream = 0;
 				int sumPeriodMinutes = 0;
 				int sumTotalMinutes = 0;
+
+				int longestStream = 0;
 				int shortestStream = 99999999;
+
+				int sumPeriodMinutesEver = 0;
+				int longestStreamEver = 0;
+				int shortestStreamEver = 99999999;
 				ArrayList<String> uniqueChattersPeriod = new ArrayList<>();
 				ArrayList<String> uniqueChattersTotal = new ArrayList<>();
 
@@ -137,6 +142,14 @@ public class TwitchStatsEmbedWorker
 					Instant streamStart = Instant.parse(s1);
 					int minutes = (int) ChronoUnit.MINUTES.between(streamStart, streamEnd);
 					sumTotalMinutes += minutes;
+					if (minutes > longestStreamEver)
+					{
+						longestStreamEver = minutes;
+					}
+					if (minutes < shortestStreamEver)
+					{
+						shortestStreamEver = minutes;
+					}
 					if (!start1.isBefore(streamStart))
 						continue;
 					if (!end1.isAfter(streamEnd))
@@ -201,7 +214,23 @@ public class TwitchStatsEmbedWorker
 					{
 						embedBuilder.addInlineField("Average Stream Length Period", "No streams in period");
 					}
+					embedBuilder.addInlineField("", "");
 					embedBuilder.addInlineField("Total Streams", String.valueOf(totalStreams));
+					if (totalStreams != 0)
+					{
+						embedBuilder.addInlineField("Longest Ever Stream", longestStreamEver + " minutes");
+						embedBuilder.addInlineField("Shortest Ever Stream", shortestStreamEver + " minutes");
+					}
+					else
+					{
+						embedBuilder.addInlineField("Longest Stream", "No streams ever");
+						embedBuilder.addInlineField("Shortest Stream", "No streams ever");
+
+					}
+					embedBuilder.addInlineField("Total Bans", String.valueOf(totalBans));
+					embedBuilder.addInlineField("Total Timeouts", String.valueOf(totalTimeouts));
+					embedBuilder.addInlineField("Total Unique Chatters", String.valueOf(uniqueChattersTotal.size()));
+					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewersTotal));
 					if (totalStreams != 0)
 					{
 						embedBuilder.addInlineField("Average Stream Length", String.valueOf((int) sumTotalMinutes / totalStreams) + " minutes");
@@ -209,12 +238,9 @@ public class TwitchStatsEmbedWorker
 					else
 					{
 						embedBuilder.addInlineField("Average Stream Length", "No streams ever");
-
 					}
-					embedBuilder.addInlineField("Total Bans", String.valueOf(totalBans));
-					embedBuilder.addInlineField("Total Timeouts", String.valueOf(totalTimeouts));
-					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewersTotal));
-					embedBuilder.addInlineField("Total Unique Chatters", String.valueOf(uniqueChattersTotal.size()));
+					embedBuilder.addInlineField("", "");
+
 				}
 
 				return embedBuilder;
