@@ -40,6 +40,9 @@ public class StreamStat
 	@SerializedName("totalBans")
 	public String totalBans;
 
+	@SerializedName("totalTimeouts")
+	public String totalTimeouts;
+
 	public static StreamStat getStreamStat(Stream stream)
 	{
 		String streamID = stream.getId();
@@ -70,8 +73,18 @@ public class StreamStat
 		streamStat.channel = stream.getUserName();
 		streamStat.streamStartTime = stream.getStartedAtInstant().toString();
 		streamStat.totalBans = "0";
+		streamStat.totalTimeouts = "0";
 		streamStat.uniqueChatters = new String[]{};
 
 		return streamStat;
+	}
+
+	public String getTotalTimeouts()
+	{
+		if (totalTimeouts == null)
+		{
+			return "0";
+		}
+		return totalTimeouts;
 	}
 }

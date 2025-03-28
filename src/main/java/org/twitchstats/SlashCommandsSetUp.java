@@ -16,7 +16,7 @@ public class SlashCommandsSetUp
 		Set<SlashCommandBuilder> builders = new HashSet<>();
 
 		builders.add(new SlashCommandBuilder().setName("twitchstats")
-			.setDescription("Gets BMJ twitch stats")
+			.setDescription("Gets twitch stats")
 			.setOptions(Arrays.asList(
 				SlashCommandOption.createDecimalOption("start", "start", true),
 				SlashCommandOption.createDecimalOption("end", "end", true),

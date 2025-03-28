@@ -83,6 +83,8 @@ public class TwitchStatsEmbedWorker
 				int peakViewersPeriod = 0;
 				int totalBans = 0;
 				int periodBans = 0;
+				int totalTimeouts = 0;
+				int periodTimeouts = 0;
 				int totalStreams = 0;
 				int periodStreams = 0;
 				int longestStream = 0;
@@ -101,6 +103,7 @@ public class TwitchStatsEmbedWorker
 					neverRan = false;
 					uniqueChattersTotal.addAll(new ArrayList<>(Arrays.asList(streamStat.uniqueChatters)));
 					totalBans+= Integer.parseInt(streamStat.totalBans);
+					totalTimeouts+= Integer.parseInt(streamStat.getTotalTimeouts());
 					totalStreams++;
 					if (streamStat.highestViewerCount != null && !streamStat.highestViewerCount.isEmpty())
 					{
@@ -161,6 +164,7 @@ public class TwitchStatsEmbedWorker
 					uniqueChattersPeriod.addAll(new ArrayList<>(Arrays.asList(streamStat.uniqueChatters)));
 
 					periodBans += Integer.parseInt(streamStat.totalBans);
+					periodTimeouts += Integer.parseInt(streamStat.getTotalTimeouts());
 				}
 
 				if (neverRan)
@@ -185,6 +189,7 @@ public class TwitchStatsEmbedWorker
 						embedBuilder.addInlineField("Shortest Stream", "No streams in period");
 					}
 					embedBuilder.addInlineField("Bans in period", String.valueOf(periodBans));
+					embedBuilder.addInlineField("Timeouts in period", String.valueOf(periodTimeouts));
 					embedBuilder.addInlineField("Period Unique Chatters", String.valueOf(uniqueChattersPeriod.size()));
 					embedBuilder.addInlineField("Period Peak Viewers", String.valueOf(peakViewersPeriod));
 
@@ -207,6 +212,7 @@ public class TwitchStatsEmbedWorker
 
 					}
 					embedBuilder.addInlineField("Total Bans", String.valueOf(totalBans));
+					embedBuilder.addInlineField("Total Timeouts", String.valueOf(totalTimeouts));
 					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewersTotal));
 					embedBuilder.addInlineField("Total Unique Chatters", String.valueOf(uniqueChattersTotal.size()));
 				}
