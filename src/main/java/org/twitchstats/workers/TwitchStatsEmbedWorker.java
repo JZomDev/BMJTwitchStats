@@ -11,7 +11,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.javacord.api.DiscordApi;
@@ -43,15 +42,15 @@ public class TwitchStatsEmbedWorker
 				String units = "";
 				for (SlashCommandInteractionOption interactionOption : arg)
 				{
-					if (interactionOption.getName().equals("start"))
+					if (interactionOption.getName().equals("start") && interactionOption.getDecimalValue().isPresent())
 					{
 						start = interactionOption.getDecimalValue().get();
 					}
-					if (interactionOption.getName().equals("end"))
+					if (interactionOption.getName().equals("end") && interactionOption.getDecimalValue().isPresent())
 					{
 						end = interactionOption.getDecimalValue().get();
 					}
-					if (interactionOption.getName().equals("units"))
+					if (interactionOption.getName().equals("units") && interactionOption.getStringValue().isPresent())
 					{
 						units = interactionOption.getStringValue().get();
 					}
@@ -87,13 +86,12 @@ public class TwitchStatsEmbedWorker
 				int periodTimeouts = 0;
 				int totalStreams = 0;
 				int periodStreams = 0;
-				int sumPeriodMinutes = 0;
-				int sumTotalMinutes = 0;
+				int sumPeriodSeconds = 0;
+				int sumTotalSeconds = 0;
 
 				int longestStream = 0;
 				int shortestStream = 99999999;
 
-				int sumPeriodMinutesEver = 0;
 				int longestStreamEver = 0;
 				int shortestStreamEver = 99999999;
 				ArrayList<String> uniqueChattersPeriod = new ArrayList<>();
@@ -119,11 +117,11 @@ public class TwitchStatsEmbedWorker
 					}
 
 					// these are session stats
-					String s1 = streamStat.streamStartTime;
-					String s2 = streamStat.streamEndTime;
+					String streamStartTime = streamStat.streamStartTime;
+					String streamEndTime = streamStat.streamEndTime;
 					Instant streamEnd;
 
-					if (s2 == null || s2.isEmpty())
+					if (streamEndTime == null || streamEndTime.isEmpty())
 					{
 						if (endSeconds == 0)
 						{
@@ -136,19 +134,19 @@ public class TwitchStatsEmbedWorker
 					}
 					else
 					{
-						streamEnd = Instant.parse(s2);
+						streamEnd = Instant.parse(streamEndTime);
 					}
 
-					Instant streamStart = Instant.parse(s1);
-					int minutes = (int) ChronoUnit.MINUTES.between(streamStart, streamEnd);
-					sumTotalMinutes += minutes;
-					if (minutes > longestStreamEver)
+					Instant streamStart = Instant.parse(streamStartTime);
+					int seconds = (int) ChronoUnit.SECONDS.between(streamStart, streamEnd);
+					sumTotalSeconds += seconds;
+					if (seconds > longestStreamEver)
 					{
-						longestStreamEver = minutes;
+						longestStreamEver = seconds;
 					}
-					if (minutes < shortestStreamEver)
+					if (seconds < shortestStreamEver)
 					{
-						shortestStreamEver = minutes;
+						shortestStreamEver = seconds;
 					}
 					if (!start1.isBefore(streamStart))
 						continue;
@@ -163,14 +161,14 @@ public class TwitchStatsEmbedWorker
 						}
 					}
 
-					sumPeriodMinutes += minutes;
-					if (minutes > longestStream)
+					sumPeriodSeconds += seconds;
+					if (seconds > longestStream)
 					{
-						longestStream = minutes;
+						longestStream = seconds;
 					}
-					if (minutes < shortestStream)
+					if (seconds < shortestStream)
 					{
-						shortestStream = minutes;
+						shortestStream = seconds;
 					}
 
 					periodStreams++;
@@ -193,8 +191,8 @@ public class TwitchStatsEmbedWorker
 
 					if (periodStreams != 0)
 					{
-						embedBuilder.addInlineField("Longest Stream", longestStream + " minutes");
-						embedBuilder.addInlineField("Shortest Stream", shortestStream + " minutes");
+						embedBuilder.addInlineField("Longest Stream", getTimeFromSeconds(longestStream));
+						embedBuilder.addInlineField("Shortest Stream", getTimeFromSeconds(shortestStream));
 					}
 					else
 					{
@@ -208,7 +206,7 @@ public class TwitchStatsEmbedWorker
 
 					if (periodStreams != 0)
 					{
-						embedBuilder.addInlineField("Average Stream Length Period", String.valueOf((int) sumPeriodMinutes / periodStreams) + " minutes");
+						embedBuilder.addInlineField("Average Stream Length Period", getTimeFromSeconds(sumPeriodSeconds / periodStreams));
 					}
 					else
 					{
@@ -218,8 +216,8 @@ public class TwitchStatsEmbedWorker
 					embedBuilder.addInlineField("Total Streams", String.valueOf(totalStreams));
 					if (totalStreams != 0)
 					{
-						embedBuilder.addInlineField("Longest Ever Stream", longestStreamEver + " minutes");
-						embedBuilder.addInlineField("Shortest Ever Stream", shortestStreamEver + " minutes");
+						embedBuilder.addInlineField("Longest Ever Stream", getTimeFromSeconds(longestStreamEver));
+						embedBuilder.addInlineField("Shortest Ever Stream", getTimeFromSeconds(shortestStreamEver));
 					}
 					else
 					{
@@ -233,7 +231,7 @@ public class TwitchStatsEmbedWorker
 					embedBuilder.addInlineField("Peak Viewers", String.valueOf(peakViewersTotal));
 					if (totalStreams != 0)
 					{
-						embedBuilder.addInlineField("Average Stream Length", String.valueOf((int) sumTotalMinutes / totalStreams) + " minutes");
+						embedBuilder.addInlineField("Average Stream Length", getTimeFromSeconds(sumTotalSeconds / totalStreams));
 					}
 					else
 					{
@@ -250,5 +248,18 @@ public class TwitchStatsEmbedWorker
 				throw new RuntimeException(e.getMessage(), e);
 			}
 		}, api.getThreadPool().getExecutorService());
+	}
+
+	private String getTimeFromSeconds(int seconds) {
+		return getTimeFromSeconds(String.valueOf(seconds));
+	}
+
+	private String getTimeFromSeconds(String seconds)
+	{
+		long secondsLong = Long.parseLong(seconds);
+		int hours = (int) (secondsLong / 3600);
+		int minutes = (int) ((secondsLong - (hours * 3600)) / 60);
+		int seconds2 = (int) (secondsLong - (hours * 3600) - (minutes * 60));
+		return hours + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds2 < 10 ? "0" + seconds2 : seconds2);
 	}
 }
