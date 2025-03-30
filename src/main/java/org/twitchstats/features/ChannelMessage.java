@@ -6,10 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import static org.twitchstats.Main.CURRENT_STREAM;
 import static org.twitchstats.Main.STREAM_STATS;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.twitchstats.StreamStat;
 
 public class ChannelMessage
 {
+	private static final Logger logger = LogManager.getLogger(ChannelMessage.class);
+
 	public ChannelMessage(SimpleEventHandler eventHandler) {
 		eventHandler.onEvent(ChannelMessageEvent.class, event -> onChannelMessage(event));
 	}
@@ -18,11 +23,7 @@ public class ChannelMessage
 	 * Subscribe to the ChannelMessage Event and write the output to the console
 	 */
 	public void onChannelMessage(ChannelMessageEvent event) {
-//		System.out.println(String.format(
-//			"Message Channel [%s] - User[%s]",
-//			event.getChannel().getName(),
-//			event.getUser().getName())
-//		);
+		logger.info("Message Channel [{}] - User[{}] - Message[{}]", event.getChannel().getName(), event.getUser().getName(), event.getMessage());
 
 		if (!CURRENT_STREAM.getOrDefault(event.getChannel().getName(), "").isEmpty())
 		{
