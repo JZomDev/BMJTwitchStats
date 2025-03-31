@@ -2,6 +2,7 @@ package org.twitchstats.features;
 
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.events.ChannelViewerCountUpdateEvent;
+import com.github.twitch4j.helix.domain.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import static org.twitchstats.Main.CURRENT_STREAM;
@@ -13,13 +14,13 @@ public class ChannelViewerCountUpdate
 	private static final Logger logger = LogManager.getLogger(ChannelViewerCountUpdate.class);
 
 	public ChannelViewerCountUpdate(SimpleEventHandler eventHandler) {
-		eventHandler.onEvent(ChannelViewerCountUpdateEvent.class, event -> onChannelMessage(event));
+		eventHandler.onEvent(ChannelViewerCountUpdateEvent.class, event -> onViewerCountUpdate(event));
 	}
 
 	/**
 	 * Subscribe to the ChannelMessage Event and write the output to the console
 	 */
-	public void onChannelMessage(ChannelViewerCountUpdateEvent event) {
+	public void onViewerCountUpdate(ChannelViewerCountUpdateEvent event) {
 		logger.info(String.format(
 			"ViewerCount StreamID [%s] - Channel [%s] - Viewer Count[%s] - start time[%s]",
 			event.getStream().getId(),
@@ -29,20 +30,18 @@ public class ChannelViewerCountUpdate
 			)
 		);
 
-		if (CURRENT_STREAM.getOrDefault(event.getChannel().getName(), "").isEmpty())
+		if (CURRENT_STREAM.getOrDefault(event.getChannel().getName(), null) == null)
 		{
-			String streamID = event.getStream().getId();
+			Stream stream = event.getStream();
 			String channelID = event.getChannel().getName();
 
-			CURRENT_STREAM.put(channelID, streamID);
+			CURRENT_STREAM.put(channelID, stream);
 			StreamStat streamStat2 = StreamStat.getStreamStat(event.getStream());
-
-			STREAM_STATS.putIfAbsent(streamID + channelID, streamStat2);
+			STREAM_STATS.put(stream.getId() + channelID, streamStat2);
 		}
-
-		if (!CURRENT_STREAM.getOrDefault(event.getChannel().getName(), "").isEmpty())
+		else if (CURRENT_STREAM.getOrDefault(event.getChannel().getName(), null) != null)
 		{
-			String streamID = CURRENT_STREAM.get(event.getChannel().getName());
+			String streamID = CURRENT_STREAM.get(event.getChannel().getName()).getId();
 			String channelID = event.getChannel().getName();
 			StreamStat streamStat = STREAM_STATS.get(streamID + channelID);
 			if (streamStat != null)

@@ -16,13 +16,10 @@ public class ChannelGoOffline
 	private static final Logger logger = LogManager.getLogger(ChannelGoOffline.class);
 
 	public ChannelGoOffline(SimpleEventHandler eventHandler) {
-		eventHandler.onEvent(ChannelGoOfflineEvent.class, event -> onChannelMessage(event));
+		eventHandler.onEvent(ChannelGoOfflineEvent.class, event -> onGoOffline(event));
 	}
 
-	/**
-	 * Subscribe to the ChannelMessage Event and write the output to the console
-	 */
-	public void onChannelMessage(ChannelGoOfflineEvent event) {
+	public void onGoOffline(ChannelGoOfflineEvent event) {
 		String endTime = Instant.now().toString();
 		logger.info(String.format(
 			"Channel [%s] - Ended at [%s]",
@@ -31,9 +28,9 @@ public class ChannelGoOffline
 
 		String channelID = event.getChannel().getName();
 
-		if (!CURRENT_STREAM.getOrDefault(event.getChannel().getName(), "").isEmpty())
+		if (CURRENT_STREAM.getOrDefault(event.getChannel().getName(), null) != null)
 		{
-			String streamID = CURRENT_STREAM.get(event.getChannel().getName());
+			String streamID = CURRENT_STREAM.get(event.getChannel().getName()).getId();
 			StreamStat streamStat = STREAM_STATS.get(streamID + channelID);
 
 			if (streamStat != null)

@@ -14,13 +14,10 @@ public class ChannelGoLive
 	private static final Logger logger = LogManager.getLogger(ChannelGoLive.class);
 
 	public ChannelGoLive(SimpleEventHandler eventHandler) {
-		eventHandler.onEvent(ChannelGoLiveEvent.class, event -> onChannelMessage(event));
+		eventHandler.onEvent(ChannelGoLiveEvent.class, event -> onGoLive(event));
 	}
 
-	/**
-	 * Subscribe to the ChannelMessage Event and write the output to the console
-	 */
-	public void onChannelMessage(ChannelGoLiveEvent event) {
+	public void onGoLive(ChannelGoLiveEvent event) {
 		Stream stream = event.getStream();
 		String startTime = stream.getStartedAtInstant().toString();
 		logger.info(String.format(
@@ -32,8 +29,8 @@ public class ChannelGoLive
 		String streamID = event.getStream().getId();
 		String channelID = event.getChannel().getName();
 
-		CURRENT_STREAM.put(channelID, streamID);
+		CURRENT_STREAM.put(channelID, event.getStream());
 		StreamStat streamStat = StreamStat.getStreamStat(event.getStream());
-		STREAM_STATS.putIfAbsent(streamID + channelID, streamStat);
+		STREAM_STATS.put(streamID + channelID, streamStat);
 	}
 }

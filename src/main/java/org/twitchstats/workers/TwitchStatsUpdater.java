@@ -1,5 +1,6 @@
 package org.twitchstats.workers;
 
+import com.github.twitch4j.helix.domain.Stream;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.BufferedWriter;
@@ -38,11 +39,14 @@ public class TwitchStatsUpdater
 
 				for (String channelid: CURRENT_STREAM.keySet())
 				{
-					String currentStream = CURRENT_STREAM.getOrDefault(channelid, "");
-					if (currentStream.isEmpty()) continue;
+					Stream currentStream = CURRENT_STREAM.getOrDefault(channelid, null);
+					if (currentStream == null) continue;
 
-					StreamStat streamStat = Main.STREAM_STATS.get(currentStream + channelid);
-
+					StreamStat streamStat = Main.STREAM_STATS.get(currentStream.getId() + channelid);
+					if (streamStat == null || json == null)
+					{
+						return null;
+					}
 					boolean edited = false;
 					for (int i = 0; i < json.size(); i++)
 					{

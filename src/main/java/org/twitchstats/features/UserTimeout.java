@@ -27,9 +27,9 @@ public class UserTimeout
 			event.getUser().getName())
 		);
 
-		if (!CURRENT_STREAM.getOrDefault(event.getChannel().getName(), "").isEmpty())
+		if (CURRENT_STREAM.getOrDefault(event.getChannel().getName(), null) != null)
 		{
-			String streamID = CURRENT_STREAM.get(event.getChannel().getName());
+			String streamID = CURRENT_STREAM.get(event.getChannel().getName()).getId();
 			String channelID = event.getChannel().getName();
 			StreamStat streamStat = STREAM_STATS.get(streamID + channelID);
 			if (streamStat != null) {

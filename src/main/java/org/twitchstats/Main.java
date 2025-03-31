@@ -1,5 +1,6 @@
 package org.twitchstats;
 
+import com.github.twitch4j.helix.domain.Stream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class Main
 	// streamid_channelid, StreamStat
 	public static HashMap<String, StreamStat> STREAM_STATS = new HashMap<>();
 	// channelid, streamid
-	public static HashMap<String, String> CURRENT_STREAM = new HashMap<>();
+	public static HashMap<String, Stream> CURRENT_STREAM = new HashMap<>();
 
 	static
 	{
@@ -98,6 +99,7 @@ public class Main
 				// Perform your recurring method calls in here.
 				try
 				{
+					logger.info("Updating file");
 					worker.execute(discordApi);
 				}
 				catch (Exception e)

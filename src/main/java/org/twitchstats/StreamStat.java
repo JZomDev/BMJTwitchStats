@@ -18,7 +18,6 @@ public class StreamStat
 	{
 	}.getType();
 
-
 	@SerializedName("StreamID")
 	public String streamID;
 
@@ -54,16 +53,18 @@ public class StreamStat
 
 			List<StreamStat> json = gson.fromJson(serverText, typeToken);
 
-			for (StreamStat streamStat : json)
+			if (!json.isEmpty())
 			{
-				if (streamStat.streamID.equals(streamID))
+				for (StreamStat streamStat : json)
 				{
-					return streamStat;
+					if (streamStat.streamID.equals(streamID))
+					{
+						return streamStat;
+					}
 				}
 			}
-
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			// do nothing
 		}
