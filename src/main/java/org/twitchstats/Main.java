@@ -21,6 +21,7 @@ public class Main
 	private static final Logger logger = LogManager.getLogger(Main.class);
 
 	public static String DISCORD_TOKEN = "";
+	public static String CHANNEL_NAMES = "";
 	public static String DIR = "";
 	private static ScheduledExecutorService mService;
 	public static DiscordApi discordApi;
@@ -43,6 +44,10 @@ public class Main
 			if (envName.equals("bot_token"))
 			{
 				DISCORD_TOKEN = environmentVariables.get(envName);
+			}
+			if (envName.equals("channel_names"))
+			{
+				CHANNEL_NAMES = environmentVariables.get(envName);
 			}
 		}
 	}

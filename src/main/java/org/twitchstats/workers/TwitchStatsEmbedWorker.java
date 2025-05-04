@@ -16,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.interaction.SlashCommandInteractionOption;
+import org.twitchstats.Main;
 import static org.twitchstats.Main.DIR;
 import org.twitchstats.StreamStat;
 
@@ -36,7 +37,7 @@ public class TwitchStatsEmbedWorker
 
 				List<StreamStat> json = gson.fromJson(serverText, typeToken);
 
-				String channelid = "austingambles";
+				ArrayList<String> channelid = new ArrayList<>(Arrays.asList(Main.CHANNEL_NAMES.split("-")));
 				double start = 0;
 				double end = 0;
 				String units = "";
@@ -57,7 +58,7 @@ public class TwitchStatsEmbedWorker
 				}
 
 				EmbedBuilder embedBuilder = new EmbedBuilder();
-				embedBuilder.setTitle("Twitch Stats - " + channelid);
+				embedBuilder.setTitle("Twitch Stats - " + channelid.get(0));
 				embedBuilder.setAuthor(api.getYourself());
 
 
@@ -101,7 +102,7 @@ public class TwitchStatsEmbedWorker
 				for (StreamStat streamStat : json)
 				{
 					String chan = streamStat.channel;
-					if (!chan.equalsIgnoreCase(channelid))
+					if (!channelid.contains(chan))
 						continue;
 					neverRan = false;
 					uniqueChattersTotal.addAll(new ArrayList<>(Arrays.asList(streamStat.uniqueChatters)));
