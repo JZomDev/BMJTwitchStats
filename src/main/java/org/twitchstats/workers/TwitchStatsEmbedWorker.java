@@ -126,7 +126,7 @@ public class TwitchStatsEmbedWorker
 					{
 						if (endSeconds == 0)
 						{
-							streamEnd = Instant.now();
+							streamEnd = Instant.now().plus(-1, ChronoUnit.SECONDS);
 						}
 						else
 						{
